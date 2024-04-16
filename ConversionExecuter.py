@@ -33,6 +33,9 @@ class ConversionExecuter(threading.Thread):
         return thread_logger
     
     def cancella_righe(testo:str, rimuovi:list) -> str:
+        # Se la lista ha lunghezza 0 termina subito
+        if len(rimuovi) == 0: return testo
+        
         righe = testo.splitlines()
         # Rimuovi le righe desiderate
         for numero_riga in sorted(rimuovi, reverse=True):
@@ -112,7 +115,10 @@ class ConversionExecuter(threading.Thread):
                     with in_filePath.open(mode='r') as file_input:
                         contenuto = file_input.read()
 
-                    contenuto = self.endpoints['header'] + "\n" + contenuto
+                    if 'header' in self.endpoints:
+                        contenuto = self.endpoints['header'] + "\n" + contenuto
+                    if 'delete_rows' in self.endpoints:
+                        contenuto = self.cancella_righe(contenuto, self.endpoints['delete_rows'])
 
                     out_fileName = ottieniNomeFile(in_filePath) + ".csv"
                     out_filePath = Path(self.endpoints['output'], out_fileName)

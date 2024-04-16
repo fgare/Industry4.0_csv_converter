@@ -26,7 +26,6 @@
             "name": "Pantografo_SCM_ROUTECH",
             "input": "\\\\192.168.2.130\\Report\\2024",
             "output": "\\\\192.168.2.130\\Report\\Report_convertiti",
-            "header": "Area;File PGM;Lunghezza;Altezza;Profondita;START_hh;START_mm;START_ss;STOP_hh;STOP_mm;STOP_ss;T_effettivo_hh;T_effettivo_mm;T_effettivo_ss;T_totale_hh;T_totale_mm;T_totale_ss;Quantita;T_medio_hh;T_medio_mm;T_medio_cs;T_medio_us;Descrizione",
             "extension": ".csv",
             "delete_rows": [1,2,16,17,18]
         }
