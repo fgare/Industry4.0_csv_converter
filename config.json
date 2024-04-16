@@ -1,0 +1,33 @@
+{
+    "doc": {
+        "name": "Nome del gruppo",
+        "input": "Cartella da cui leggere i file",
+        "output": "Cartella in cui salvare i file convertiti",
+        "header": "Riga di intestazione da inserire",
+        "extension": "Estensione dei file da convertire",
+        "delete_rows": "Lista di righe da eliminare"
+    },
+    "folders": [
+        {
+            "name": "Calibratrice_SCM_DMC70",
+            "input": "\\\\192.168.2.85\\report\\2024",
+            "output": "\\\\192.168.2.85\\report\\converted_reports",
+            "header": "today; job code; Program number; detail code; description; quantity; thickness; width; length; surface; Volume effettivo lavorazione; start time; end time; Flag completed; effective processing time; effective processing total time; really worked quantity; really worked surface; Really worked volume; number of operators; worked job operators hours; Totallu worked operators hours; KWH absorbed  job; KWH absorbed total; Group 1 n° of belt used on the job; Group 2 n° of belt used on the job; Group 3 n° of belt used on the job; 0",
+            "extension": ".pro"
+        },
+        {
+            "name": "Macchina_taglio_Elitron",
+            "input": "\\\\192.168.30.63\\hd\\Elitron\\Gestionale\\LavorazioniEffettuate",
+            "output": "\\\\192.168.30.63\\hd\\Elitron\\Gestionale\\LavorazioniConvertite",
+            "header": "0;2;File;Pezzo;1;Tempo",
+            "extension": ".txt"
+        },
+        {
+            "name": "Pantografo_SCM_ROUTECH",
+            "input": "\\\\192.168.2.130\\Report\\2024",
+            "output": "\\\\192.168.2.130\\Report\\Report_convertiti",
+            "header": "Area;File PGM;Lunghezza;Altezza;Profondita;START_hh;START_mm;START_ss;STOP_hh;STOP_mm;STOP_ss;T_effettivo_hh;T_effettivo_mm;T_effettivo_ss;T_totale_hh;T_totale_mm;T_totale_ss;Quantita;T_medio_hh;T_medio_mm;T_medio_cs;T_medio_us;Descrizione",
+            "extension": ".pro"
+        }
+    ]
+}
