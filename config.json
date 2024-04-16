@@ -5,7 +5,7 @@
         "output": "Cartella in cui salvare i file convertiti",
         "header": "Riga di intestazione da inserire",
         "extension": "Estensione dei file da convertire",
-        "delete_rows": "Lista di righe da eliminare"
+        "delete_rows": "Lista di righe da eliminare (la prima riga ha indice 0, valori negativi per conteggio dal fondo)"
     },
     "folders": [
         {
@@ -27,7 +27,8 @@
             "input": "\\\\192.168.2.130\\Report\\2024",
             "output": "\\\\192.168.2.130\\Report\\Report_convertiti",
             "header": "Area;File PGM;Lunghezza;Altezza;Profondita;START_hh;START_mm;START_ss;STOP_hh;STOP_mm;STOP_ss;T_effettivo_hh;T_effettivo_mm;T_effettivo_ss;T_totale_hh;T_totale_mm;T_totale_ss;Quantita;T_medio_hh;T_medio_mm;T_medio_cs;T_medio_us;Descrizione",
-            "extension": ".pro"
+            "extension": ".csv",
+            "delete_rows": [1,2,16,17,18]
         }
     ]
 }

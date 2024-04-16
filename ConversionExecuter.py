@@ -31,7 +31,17 @@ class ConversionExecuter(threading.Thread):
         thread_logger.addHandler(file_handler)
 
         return thread_logger
-
+    
+    def cancella_righe(testo:str, rimuovi:list) -> str:
+        righe = testo.splitlines()
+        # Rimuovi le righe desiderate
+        for numero_riga in sorted(rimuovi, reverse=True):
+            if numero_riga < 0:  # Se l'indice è negativo, convertilo in un indice positivo
+                numero_riga = len(righe) + numero_riga  # Calcola l'indice positivo corrispondente
+            del righe[numero_riga]
+        
+        return ''.join(righe)
+    
     def arresta(self):
         self.termina.set()
 
