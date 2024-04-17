@@ -27,7 +27,7 @@
             "input": "\\\\192.168.2.130\\Report\\2024",
             "output": "\\\\192.168.2.130\\Report\\Report_convertiti",
             "extension": ".csv",
-            "delete_rows": [1,2,16,17,18]
+            "delete_rows": [1,2,-1,-2,-3]
         }
     ]
 }

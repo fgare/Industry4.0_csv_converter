@@ -24,7 +24,7 @@ schema = {
                         "output": {"type":"string"},
                         "header": {"type":"string"},
                         "extension": {"type":"string"},
-                        "delete_rows": {"type": "array", "items": "number"}
+                        "delete_rows": {"type": "array", "items": {"type": "number"}}
                     },
                     "required":["name","input","output","extension"]
                 }

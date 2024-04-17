@@ -32,19 +32,6 @@ class ConversionExecuter(threading.Thread):
 
         return thread_logger
     
-    def cancella_righe(testo:str, rimuovi:list) -> str:
-        # Se la lista ha lunghezza 0 termina subito
-        if len(rimuovi) == 0: return testo
-        
-        righe = testo.splitlines()
-        # Rimuovi le righe desiderate
-        for numero_riga in sorted(rimuovi, reverse=True):
-            if numero_riga < 0:  # Se l'indice è negativo, convertilo in un indice positivo
-                numero_riga = len(righe) + numero_riga  # Calcola l'indice positivo corrispondente
-            del righe[numero_riga]
-        
-        return ''.join(righe)
-    
     def arresta(self):
         self.termina.set()
 
@@ -86,6 +73,32 @@ class ConversionExecuter(threading.Thread):
             except Exception as e:
                 self.logger.info(f"Errore generico: {e}")
 
+        ''' Data una lista, restituisce una lista con i valori unici presenti '''
+        def _unique_values(l:list) -> list:
+            val_unici = set(l)
+            return list(val_unici)
+
+        ''' Cancella i numeri di riga specificati dal testo '''
+        def cancella_righe(testo:str, rimuovi:list) -> str:
+            # Se la lista ha lunghezza 0 termina subito
+            if len(rimuovi) == 0: return testo
+            
+            righe = testo.splitlines()
+            rimuovi = _unique_values(rimuovi)
+            if len(righe) - len(rimuovi) < 1:
+                raise ValueError("Troppe poche righe")
+           
+            for i, numero_riga in enumerate(rimuovi):
+                if numero_riga < 0:  # Se l'indice e' negativo, convertilo in un indice positivo
+                    numero_riga = len(righe) + numero_riga  # Calcola l'indice positivo corrispondente
+                    rimuovi[i] = numero_riga  # sovrascrive il valore della riga
+
+            for numero_riga in sorted(rimuovi, reverse=True):
+                if 0 <= numero_riga < len(testo):
+                    del righe[numero_riga]
+            
+            return '\n'.join(righe)
+
         self.logger.info("Convertitore avviato")
         while not self.termina.is_set():
             # Carica l'elenco dei file già convertiti.
@@ -118,7 +131,10 @@ class ConversionExecuter(threading.Thread):
                     if 'header' in self.endpoints:
                         contenuto = self.endpoints['header'] + "\n" + contenuto
                     if 'delete_rows' in self.endpoints:
-                        contenuto = self.cancella_righe(contenuto, self.endpoints['delete_rows'])
+                        try:
+                            contenuto = cancella_righe(contenuto, self.endpoints['delete_rows'])
+                        except ValueError as ve:
+                            continue
 
                     out_fileName = ottieniNomeFile(in_filePath) + ".csv"
                     out_filePath = Path(self.endpoints['output'], out_fileName)
@@ -127,6 +143,7 @@ class ConversionExecuter(threading.Thread):
                         file_output.write(contenuto)
 
                     logString.append(out_fileName)
+            
             if len(logString) == 0:
                 continue
             elif 1 <= len(logString) <= 20:
