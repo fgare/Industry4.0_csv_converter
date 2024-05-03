@@ -2,7 +2,7 @@ import threading
 import pickle
 import time, sys, os
 import logging
-from pathlib import Path
+import pathlib
 
 # tempo di attesa tra due esecuzioni successive dello script
 WAIT_TIME:int = 60 # secondi
@@ -44,12 +44,12 @@ class ConversionExecuter(threading.Thread):
         
         # Memorizza un oggetto python su file
         def salva(object, nomeFile:str):
-            with open(f"{nomeFile}.pickle", "wb") as file:
+            with open(f"{nomeFile}", "wb") as file:
                 pickle.dump(object, file)
 
         ''' Legge un oggetto salvato come file  '''
         def apri(nomeFile:str):
-            with open(f"{nomeFile}.pickle", "rb") as file:
+            with open(f"{nomeFile}", "rb") as file:
                 return pickle.load(file)
 
         '''
@@ -57,7 +57,7 @@ class ConversionExecuter(threading.Thread):
         '''
         def elenca_file_di_rete(percorso_cartella_rete, estensione:str=None) -> set:
             # Componi il percorso completo alla cartella di rete utilizzando la libreria pathlib
-            percorso_cartella = Path(percorso_cartella_rete)
+            percorso_cartella = pathlib.Path(percorso_cartella_rete)
             
             try:
                 # Verifica se il percorso e' una directory
@@ -72,6 +72,36 @@ class ConversionExecuter(threading.Thread):
                 self.logger.info(f"La cartella di rete {percorso_cartella_rete} non e' stata trovata.")
             except Exception as e:
                 self.logger.info(f"Errore generico: {e}")
+            
+        '''
+        Metodo che restituisce l'elenco dei file presenti in una cartella insieme alla loro data di creazione.
+        '''
+        @staticmethod
+        def elencoFile(folderPath:pathlib.Path, extension:str=None) -> set:
+            if not folderPath.is_dir():
+                raise NotADirectoryError(f"Il percorso {folderPath} non è una cartella")
+            
+            elenco_file = set()
+            if extension:  # se e' stato specificata l'estensione
+                for file in folderPath.glob('*'+extension):
+                    if file.is_file:
+                        elenco_file.add((file.name, file.stat().st_mtime))
+            else:  # estensione non specificata
+                for file in folderPath.iterdir():
+                    if file.is_file:
+                        elenco_file.add((file.name, file.stat().st_mtime))
+            return elenco_file
+        
+        @staticmethod
+        def nuoviFile_cartella(inputFolder:pathlib.Path, extension:str, vecchiFile:set) -> set:
+            elencoFile_attuale:set = elencoFile(inputFolder, extension)
+            nuoviFile:set = elencoFile_attuale - vecchiFile
+
+            # seleziona il file più recente
+            ultimoFile = max(elencoFile_attuale, key=lambda x:x[1])
+            # aggiungo sempre il file con la data di modifica più recente
+            nuoviFile.add(ultimoFile)
+            return nuoviFile
 
         ''' Data una lista, restituisce una lista con i valori unici presenti '''
         def _unique_values(l:list) -> list:
@@ -110,20 +140,21 @@ class ConversionExecuter(threading.Thread):
 
             # elencoFile_precedente = set()
 
-            elencoFile_attuale = elenca_file_di_rete(self.endpoints['input'], self.endpoints['extension'])
+            nuoviFile:set = nuoviFile_cartella(
+                pathlib.Path(self.endpoints['input']),
+                self.endpoints['extension'],
+                elencoFile_precedente
+            )
 
             # Se elencoFile_attuale non è stato assegnato significa che la cartella non è raggiungibile
-            if elencoFile_attuale is None:
+            if nuoviFile is None:
                 time.sleep(WAIT_TIME)
                 continue
-
-            nuoviFile:set = elencoFile_attuale - elencoFile_precedente
             
             logString = list()
-
             if nuoviFile:
                 for file in nuoviFile:
-                    in_filePath = Path(self.endpoints['input']) / file
+                    in_filePath = pathlib.Path(self.endpoints['input']) / file[0]
                     # Leggi il contenuto del file CSV di input
                     with in_filePath.open(mode='r') as file_input:
                         contenuto = file_input.read()
@@ -137,7 +168,7 @@ class ConversionExecuter(threading.Thread):
                             continue
 
                     out_fileName = ottieniNomeFile(in_filePath) + ".csv"
-                    out_filePath = Path(self.endpoints['output'], out_fileName)
+                    out_filePath = pathlib.Path(self.endpoints['output'], out_fileName)
                     # Scrivi il contenuto modificato nel file CSV di output
                     with out_filePath.open(mode='w') as file_output:
                         file_output.write(contenuto)
@@ -151,8 +182,8 @@ class ConversionExecuter(threading.Thread):
             else:
                 self.logger.info(f"Scritti {len(logString)} file (omesso elenco)")
 
-            elencoFile_precedente = elencoFile_attuale
-            salva(elencoFile_attuale, f"{self.endpoints['name']}")
+            elencoFile_precedente = nuoviFile
+            salva(nuoviFile, f"{self.endpoints['name']}")
         
             time.sleep(WAIT_TIME)
 
